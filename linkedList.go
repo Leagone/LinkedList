@@ -1,5 +1,6 @@
 package main
 
+import "errors"
 
 type Node struct {
 	Value int
@@ -20,7 +21,6 @@ func toSlice(l *LinkedList) []int {
 	}
 	return result
 }
-
 
 func (l *LinkedList) Append(value int) {
 
@@ -49,4 +49,29 @@ func (l *LinkedList) Prepend(value int) {
 	newNode.Next = l.Head
 	l.Head = newNode
 	l.Length++
+}
+
+func (l *LinkedList) Pop() (int, error) {
+
+	if l.Head == nil {
+		return 0, errors.New("Cannot pop from empty list")
+	}
+
+	var val int
+
+	if l.Head.Next == nil {
+		val = l.Head.Value
+		l.Head = nil
+	} else {
+		current := l.Head
+		for current.Next.Next != nil {
+			current = current.Next
+		}
+		val = current.Next.Value
+		current.Next = nil
+	}
+
+	l.Length--
+	return val, nil
+
 }
