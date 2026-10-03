@@ -42,3 +42,11 @@ func (l *LinkedList) Append(value int) {
 
 }
 
+func (l *LinkedList) Prepend(value int) {
+	newNode := &Node{
+		Value: value,
+	}
+	newNode.Next = l.Head
+	l.Head = newNode
+	l.Length++
+}
