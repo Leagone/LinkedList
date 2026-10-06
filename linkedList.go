@@ -78,10 +78,10 @@ func (l *LinkedList) Pop() (int, error) {
 
 }
 
-func (l *LinkedList) Get(index int) (int,error) {
-	
+func (l *LinkedList) Get(index int) (int, error) {
+
 	if index < 0 {
-		return 0 , errors.New("Out of bounds")
+		return 0, errors.New("Out of bounds")
 	}
 
 	current := l.Head
@@ -92,5 +92,34 @@ func (l *LinkedList) Get(index int) (int,error) {
 		current = current.Next
 	}
 
-	return 0 , errors.New("Out of Bounds")
+	return 0, errors.New("Out of Bounds")
+}
+
+func (l *LinkedList) InsertAt(value int, index int) error {
+
+	if index < 0 || index > l.Length {
+		return errors.New("Out of Bounds")
+	}
+
+	newNode := &Node{
+		Value: value,
+	}
+
+	if index == 0 {
+		newNode.Next = l.Head
+		l.Head = newNode
+		l.Length++
+		return nil
+	}
+
+	current := l.Head
+	for i := 0; i < index-1; i++ {
+		current = current.Next
+	}
+
+	newNode.Next = current.Next
+	current.Next = newNode
+	l.Length++
+	return nil
+
 }
