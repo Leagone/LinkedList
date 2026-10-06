@@ -1,6 +1,8 @@
 package main
 
-import "errors"
+import (
+	"errors"
+)
 
 type Node struct {
 	Value int
@@ -74,4 +76,21 @@ func (l *LinkedList) Pop() (int, error) {
 	l.Length--
 	return val, nil
 
+}
+
+func (l *LinkedList) Get(index int) (int,error) {
+	
+	if index < 0 {
+		return 0 , errors.New("Out of bounds")
+	}
+
+	current := l.Head
+	for i := 0; current != nil; i++ {
+		if i == index {
+			return current.Value, nil
+		}
+		current = current.Next
+	}
+
+	return 0 , errors.New("Out of Bounds")
 }

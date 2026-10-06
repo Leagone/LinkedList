@@ -190,3 +190,88 @@ func TestLinkedList_Pop(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_Get(t *testing.T) {
+	tests := []struct {
+		name          string
+		initialValues []int
+		index         int
+		expectedValue int
+		expectError   bool
+	}{
+		{
+			name:          "get first element",
+			initialValues: []int{10, 20, 30},
+			index:         0,
+			expectedValue: 10,
+			expectError:   false,
+		},
+		{
+			name:          "get middle element",
+			initialValues: []int{10, 20, 30},
+			index:         1,
+			expectedValue: 20,
+			expectError:   false,
+		},
+		{
+			name:          "get last element",
+			initialValues: []int{10, 20, 30},
+			index:         2,
+			expectedValue: 30,
+			expectError:   false,
+		},
+		{
+			name:          "get negative index",
+			initialValues: []int{10, 20, 30},
+			index:         -1,
+			expectedValue: 0,
+			expectError:   true,
+		},
+		{
+			name:          "get index equals length",
+			initialValues: []int{10, 20, 30},
+			index:         3,
+			expectedValue: 0,
+			expectError:   true,
+		},
+		{
+			name:          "get index out of bounds",
+			initialValues: []int{10, 20, 30},
+			index:         10,
+			expectedValue: 0,
+			expectError:   true,
+		},
+		{
+			name:          "get from empty list",
+			initialValues: []int{},
+			index:         0,
+			expectedValue: 0,
+			expectError:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{}
+			for _, val := range tt.initialValues {
+				l.Append(val)
+			}
+
+			val, err := l.Get(tt.index)
+
+			if tt.expectError {
+				if err == nil {
+					t.Fatalf("expected an error but got nil")
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			}
+
+			if val != tt.expectedValue {
+				t.Errorf("Get(%d) = %d; want %d", tt.index, val, tt.expectedValue)
+			}
+		})
+	}
+}
