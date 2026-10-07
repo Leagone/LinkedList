@@ -192,3 +192,25 @@ func (l *LinkedList) IndexOf(value int) (int, error) {
 
 	return -1, errors.New("value not found")
 }
+
+func (l *LinkedList) Filter(condition func(value int) bool) {
+	dummy := &Node{}
+
+	tail := dummy
+	newLenght := 0
+	current := l.Head
+
+	for current != nil {
+		if condition(current.Value) {
+			tail.Next = current
+			tail = tail.Next
+			newLenght++
+		}
+		current = current.Next
+	}
+
+	tail.Next = nil
+
+	l.Head = dummy.Next
+	l.Length = newLenght
+}

@@ -725,3 +725,94 @@ func TestLinkedList_RemoveByValue(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_Filter(t *testing.T) {
+	tests := []struct {
+		name           string
+		initialValues  []int
+		condition      func(value int) bool
+		expectedLength int
+		expectedList   []int
+	}{
+		{
+			name:          "filter all evens",
+			initialValues: []int{1, 2, 3, 4, 5, 6},
+			condition: func(value int) bool {
+				return value%2 == 0
+			},
+			expectedLength: 3,
+			expectedList:   []int{2, 4, 6},
+		},
+		{
+			name:          "filter keep all",
+			initialValues: []int{10, 20, 30},
+			condition: func(value int) bool {
+				return true
+			},
+			expectedLength: 3,
+			expectedList:   []int{10, 20, 30},
+		},
+		{
+			name:          "filter remove all",
+			initialValues: []int{10, 20, 30},
+			condition: func(value int) bool {
+				return false
+			},
+			expectedLength: 0,
+			expectedList:   nil,
+		},
+		{
+			name:          "filter from empty list",
+			initialValues: []int{},
+			condition: func(value int) bool {
+				return true
+			},
+			expectedLength: 0,
+			expectedList:   nil,
+		},
+		{
+			name:          "filter keep only head",
+			initialValues: []int{10, 20, 30},
+			condition: func(value int) bool {
+				return value == 10
+			},
+			expectedLength: 1,
+			expectedList:   []int{10},
+		},
+		{
+			name:          "filter keep only tail",
+			initialValues: []int{10, 20, 30},
+			condition: func(value int) bool {
+				return value == 30
+			},
+			expectedLength: 1,
+			expectedList:   []int{30},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{}
+			for _, val := range tt.initialValues {
+				l.Append(val)
+			}
+
+			l.Filter(tt.condition)
+
+			if l.Length != tt.expectedLength {
+				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
+			}
+
+			actualValues := toSlice(l)
+			if len(actualValues) != len(tt.expectedList) {
+				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
+			}
+
+			for i := range actualValues {
+				if actualValues[i] != tt.expectedList[i] {
+					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
+				}
+			}
+		})
+	}
+}
