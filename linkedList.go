@@ -275,3 +275,18 @@ func (l *LinkedList) RemoveNthFromEnd(n int) error {
 
 	return nil
 }
+
+func (l *LinkedList) HasCycle() bool {
+	slow := l.Head
+	fast := l.Head
+
+	for fast != nil && fast.Next != nil {
+		slow = slow.Next
+		fast = fast.Next.Next
+		if slow == fast {
+			return true
+		}
+	}
+
+	return false
+}

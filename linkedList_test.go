@@ -1032,3 +1032,90 @@ func TestLinkedList_RemoveNthFromEnd(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_HasCycle(t *testing.T) {
+	tests := []struct {
+		name           string
+		initialValues  []int
+		cycleIndex     int
+		expectedResult bool
+	}{
+		{
+			name:           "empty list",
+			initialValues:  []int{},
+			cycleIndex:     -1,
+			expectedResult: false,
+		},
+		{
+			name:           "single node no cycle",
+			initialValues:  []int{10},
+			cycleIndex:     -1,
+			expectedResult: false,
+		},
+		{
+			name:           "single node with cycle",
+			initialValues:  []int{10},
+			cycleIndex:     0,
+			expectedResult: true,
+		},
+		{
+			name:           "multi node no cycle",
+			initialValues:  []int{10, 20, 30, 40},
+			cycleIndex:     -1,
+			expectedResult: false,
+		},
+		{
+			name:           "multi node cycle to head",
+			initialValues:  []int{10, 20, 30, 40},
+			cycleIndex:     0,
+			expectedResult: true,
+		},
+		{
+			name:           "multi node cycle to middle",
+			initialValues:  []int{10, 20, 30, 40},
+			cycleIndex:     2,
+			expectedResult: true,
+		},
+		{
+			name:           "multi node cycle to tail (self loop)",
+			initialValues:  []int{10, 20, 30, 40},
+			cycleIndex:     3,
+			expectedResult: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{}
+			for _, val := range tt.initialValues {
+				l.Append(val)
+			}
+
+			if tt.cycleIndex >= 0 && l.Head != nil {
+				var targetNode *Node
+				tail := l.Head
+
+				for i := 0; tail.Next != nil; i++ {
+					if i == tt.cycleIndex {
+						targetNode = tail
+					}
+					tail = tail.Next
+				}
+
+				if tt.cycleIndex == l.Length-1 {
+					targetNode = tail
+				}
+
+				if targetNode != nil {
+					tail.Next = targetNode
+				}
+			}
+
+			result := l.HasCycle()
+
+			if result != tt.expectedResult {
+				t.Errorf("HasCycle() = %v; want %v", result, tt.expectedResult)
+			}
+		})
+	}
+}
