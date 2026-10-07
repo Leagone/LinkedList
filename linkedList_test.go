@@ -621,3 +621,107 @@ func TestLinkedList_IndexOf(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_RemoveByValue(t *testing.T) {
+	tests := []struct {
+		name           string
+		initialValues  []int
+		removeValue    int
+		expectError    bool
+		expectedLength int
+		expectedList   []int
+	}{
+		{
+			name:           "remove head",
+			initialValues:  []int{10, 20, 30},
+			removeValue:    10,
+			expectError:    false,
+			expectedLength: 2,
+			expectedList:   []int{20, 30},
+		},
+		{
+			name:           "remove middle element",
+			initialValues:  []int{10, 20, 30},
+			removeValue:    20,
+			expectError:    false,
+			expectedLength: 2,
+			expectedList:   []int{10, 30},
+		},
+		{
+			name:           "remove tail",
+			initialValues:  []int{10, 20, 30},
+			removeValue:    30,
+			expectError:    false,
+			expectedLength: 2,
+			expectedList:   []int{10, 20},
+		},
+		{
+			name:           "remove only element",
+			initialValues:  []int{10},
+			removeValue:    10,
+			expectError:    false,
+			expectedLength: 0,
+			expectedList:   nil,
+		},
+		{
+			name:           "remove non-existent element",
+			initialValues:  []int{10, 20, 30},
+			removeValue:    99,
+			expectError:    true,
+			expectedLength: 3,
+			expectedList:   []int{10, 20, 30},
+		},
+		{
+			name:           "remove from empty list",
+			initialValues:  []int{},
+			removeValue:    10,
+			expectError:    true,
+			expectedLength: 0,
+			expectedList:   nil,
+		},
+		{
+			name:           "remove first of duplicates",
+			initialValues:  []int{10, 20, 20, 30},
+			removeValue:    20,
+			expectError:    false,
+			expectedLength: 3,
+			expectedList:   []int{10, 20, 30},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{}
+			for _, val := range tt.initialValues {
+				l.Append(val)
+			}
+
+			err := l.RemoveByValue(tt.removeValue)
+
+			if tt.expectError {
+				if err == nil {
+					t.Fatalf("expected an error but got nil")
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			}
+
+			if l.Length != tt.expectedLength {
+				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
+			}
+
+			actualValues := toSlice(l)
+			if len(actualValues) != len(tt.expectedList) {
+				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
+			}
+
+			for i := range actualValues {
+				if actualValues[i] != tt.expectedList[i] {
+					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
+				}
+			}
+		})
+	}
+}

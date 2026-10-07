@@ -146,6 +146,30 @@ func (l *LinkedList) RemoveAt(index int) error {
 	return nil
 }
 
+func (l *LinkedList) RemoveByValue(value int) error {
+
+	if l.Head == nil {
+		return errors.New("Cannot remove from empty list")
+	}
+
+	if l.Head.Value == value {
+		l.Head = l.Head.Next
+		l.Length--
+		return nil
+	}
+
+	current := l.Head
+	for current.Next != nil {
+		if current.Next.Value == value {
+			current.Next = current.Next.Next
+			l.Length--
+			return nil
+		}
+		current = current.Next
+	}
+	return errors.New("Value not Found")
+}
+
 func (l *LinkedList) Contains(value int) bool {
 	current := l.Head
 	for current != nil {
