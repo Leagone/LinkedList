@@ -214,3 +214,18 @@ func (l *LinkedList) Filter(condition func(value int) bool) {
 	l.Head = dummy.Next
 	l.Length = newLenght
 }
+
+func (l *LinkedList) Reverse() {
+
+	var previous *Node
+	current := l.Head
+
+	for current != nil {
+		tail := current.Next
+		current.Next = previous
+		previous = current
+		current = tail
+	}
+
+	l.Head = previous
+}

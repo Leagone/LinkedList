@@ -816,3 +816,63 @@ func TestLinkedList_Filter(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_Reverse(t *testing.T) {
+	tests := []struct {
+		name           string
+		initialValues  []int
+		expectedLength int
+		expectedList   []int
+	}{
+		{
+			name:           "reverse multi-node list",
+			initialValues:  []int{10, 20, 30, 40},
+			expectedLength: 4,
+			expectedList:   []int{40, 30, 20, 10},
+		},
+		{
+			name:           "reverse two-node list",
+			initialValues:  []int{10, 20},
+			expectedLength: 2,
+			expectedList:   []int{20, 10},
+		},
+		{
+			name:           "reverse single-node list",
+			initialValues:  []int{10},
+			expectedLength: 1,
+			expectedList:   []int{10},
+		},
+		{
+			name:           "reverse empty list",
+			initialValues:  []int{},
+			expectedLength: 0,
+			expectedList:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{}
+			for _, val := range tt.initialValues {
+				l.Append(val)
+			}
+
+			l.Reverse()
+
+			if l.Length != tt.expectedLength {
+				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
+			}
+
+			actualValues := toSlice(l)
+			if len(actualValues) != len(tt.expectedList) {
+				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
+			}
+
+			for i := range actualValues {
+				if actualValues[i] != tt.expectedList[i] {
+					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
+				}
+			}
+		})
+	}
+}
