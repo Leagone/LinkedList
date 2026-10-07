@@ -349,7 +349,7 @@ func TestLinkedList_InsertAt(t *testing.T) {
 				l.Append(val)
 			}
 
-			err := l.InsertAt(tt.insertValue, tt.insertIndex)
+			err := l.InsertAt(tt.insertIndex, tt.insertValue)
 
 			if tt.expectError {
 				if err == nil {
