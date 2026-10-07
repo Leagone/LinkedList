@@ -95,7 +95,7 @@ func (l *LinkedList) Get(index int) (int, error) {
 	return 0, errors.New("Out of Bounds")
 }
 
-func (l *LinkedList) InsertAt(value int, index int) error {
+func (l *LinkedList) InsertAt(index int, value int) error {
 
 	if index < 0 || index > l.Length {
 		return errors.New("Out of Bounds")
@@ -122,4 +122,26 @@ func (l *LinkedList) InsertAt(value int, index int) error {
 	l.Length++
 	return nil
 
+}
+
+func (l *LinkedList) RemoveAt(index int) error {
+	if index < 0 || index >= l.Length {
+		return errors.New("Out of Bounds")
+	}
+
+	if index == 0 {
+		l.Head = l.Head.Next
+		l.Length--
+		return nil
+	}
+
+	current := l.Head
+
+	for i := 0; i < index-1; i++ {
+		current = current.Next
+	}
+
+	current.Next = current.Next.Next
+	l.Length--
+	return nil
 }
