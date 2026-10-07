@@ -1215,3 +1215,87 @@ func TestLinkedList_FindCycleStart(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_Zip(t *testing.T) {
+	tests := []struct {
+		name            string
+		initialL1Values []int
+		initialL2Values []int
+		expectedLength  int
+		expectedList    []int
+	}{
+		{
+			name:            "equal length lists",
+			initialL1Values: []int{1, 3, 5},
+			initialL2Values: []int{2, 4, 6},
+			expectedLength:  6,
+			expectedList:    []int{1, 2, 3, 4, 5, 6},
+		},
+		{
+			name:            "l1 is longer",
+			initialL1Values: []int{1, 3, 5, 6, 7},
+			initialL2Values: []int{2, 4},
+			expectedLength:  7,
+			expectedList:    []int{1, 2, 3, 4, 5, 6, 7},
+		},
+		{
+			name:            "l2 is longer",
+			initialL1Values: []int{1, 3},
+			initialL2Values: []int{2, 4, 5, 6, 7},
+			expectedLength:  7,
+			expectedList:    []int{1, 2, 3, 4, 5, 6, 7},
+		},
+		{
+			name:            "l1 is empty",
+			initialL1Values: []int{},
+			initialL2Values: []int{1, 2, 3},
+			expectedLength:  3,
+			expectedList:    []int{1, 2, 3},
+		},
+		{
+			name:            "l2 is empty",
+			initialL1Values: []int{1, 2, 3},
+			initialL2Values: []int{},
+			expectedLength:  3,
+			expectedList:    []int{1, 2, 3},
+		},
+		{
+			name:            "both lists empty",
+			initialL1Values: []int{},
+			initialL2Values: []int{},
+			expectedLength:  0,
+			expectedList:    nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l1 := &LinkedList{}
+			for _, val := range tt.initialL1Values {
+				l1.Append(val)
+			}
+
+			l2 := &LinkedList{}
+			for _, val := range tt.initialL2Values {
+				l2.Append(val)
+			}
+
+			l1.Zip(l2)
+
+			if l1.Length != tt.expectedLength {
+				t.Errorf("Length = %d; want %d", l1.Length, tt.expectedLength)
+			}
+
+			actualValues := toSlice(l1)
+			if len(actualValues) != len(tt.expectedList) {
+				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
+			}
+
+			for i := range actualValues {
+				if actualValues[i] != tt.expectedList[i] {
+					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
+				}
+			}
+		})
+	}
+}

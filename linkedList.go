@@ -305,3 +305,41 @@ func (l *LinkedList) FindCycleStart() *Node {
 
 	return nil
 }
+
+func (l1 *LinkedList) Zip(l2 *LinkedList) {
+
+	dummy := &Node{}
+
+	current := dummy
+
+	h1 := l1.Head
+	h2 := l2.Head
+
+	for h1 != nil && h2 != nil {
+		t1 := h1.Next
+		t2 := h2.Next
+
+		h1.Next = nil
+		h2.Next = nil
+
+		current.Next = h1
+		current.Next.Next = h2
+
+		h1 = t1
+		h2 = t2
+
+		current = current.Next.Next
+	}
+
+	if h1 == nil {
+		current.Next = h2
+	}
+
+	if h2 == nil {
+		current.Next = h1
+	}
+
+	l1.Head = dummy.Next
+	l1.Length = l1.Length + l2.Length
+
+}
