@@ -543,3 +543,81 @@ func TestLinkedList_Contains(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_IndexOf(t *testing.T) {
+	tests := []struct {
+		name          string
+		initialValues []int
+		searchValue   int
+		expectedIndex int
+		expectError   bool
+	}{
+		{
+			name:          "index of first element",
+			initialValues: []int{10, 20, 30},
+			searchValue:   10,
+			expectedIndex: 0,
+			expectError:   false,
+		},
+		{
+			name:          "index of middle element",
+			initialValues: []int{10, 20, 30},
+			searchValue:   20,
+			expectedIndex: 1,
+			expectError:   false,
+		},
+		{
+			name:          "index of last element",
+			initialValues: []int{10, 20, 30},
+			searchValue:   30,
+			expectedIndex: 2,
+			expectError:   false,
+		},
+		{
+			name:          "index of non-existent element",
+			initialValues: []int{10, 20, 30},
+			searchValue:   99,
+			expectedIndex: -1,
+			expectError:   true,
+		},
+		{
+			name:          "index in empty list",
+			initialValues: []int{},
+			searchValue:   10,
+			expectedIndex: -1,
+			expectError:   true,
+		},
+		{
+			name:          "index of duplicate element",
+			initialValues: []int{10, 20, 20, 30},
+			searchValue:   20,
+			expectedIndex: 1,
+			expectError:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{}
+			for _, val := range tt.initialValues {
+				l.Append(val)
+			}
+
+			idx, err := l.IndexOf(tt.searchValue)
+
+			if tt.expectError {
+				if err == nil {
+					t.Fatalf("expected an error but got nil")
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			}
+
+			if idx != tt.expectedIndex {
+				t.Errorf("IndexOf(%d) = %d; want %d", tt.searchValue, idx, tt.expectedIndex)
+			}
+		})
+	}
+}

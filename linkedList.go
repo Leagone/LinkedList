@@ -156,3 +156,15 @@ func (l *LinkedList) Contains(value int) bool {
 	}
 	return false
 }
+
+func (l *LinkedList) IndexOf(value int) (int, error) {
+	current := l.Head
+	for i := 0; current != nil; i++ {
+		if current.Value == value {
+			return i, nil
+		}
+		current = current.Next
+	}
+
+	return -1, errors.New("value not found")
+}
