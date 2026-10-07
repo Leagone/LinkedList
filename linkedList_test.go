@@ -1119,3 +1119,99 @@ func TestLinkedList_HasCycle(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_FindCycleStart(t *testing.T) {
+	tests := []struct {
+		name               string
+		initialValues      []int
+		cycleIndex         int
+		expectedCycleIndex int
+	}{
+		{
+			name:               "empty list",
+			initialValues:      []int{},
+			cycleIndex:         -1,
+			expectedCycleIndex: -1,
+		},
+		{
+			name:               "single node no cycle",
+			initialValues:      []int{10},
+			cycleIndex:         -1,
+			expectedCycleIndex: -1,
+		},
+		{
+			name:               "single node with cycle",
+			initialValues:      []int{10},
+			cycleIndex:         0,
+			expectedCycleIndex: 0,
+		},
+		{
+			name:               "multi node no cycle",
+			initialValues:      []int{10, 20, 30, 40},
+			cycleIndex:         -1,
+			expectedCycleIndex: -1,
+		},
+		{
+			name:               "multi node cycle to head",
+			initialValues:      []int{10, 20, 30, 40},
+			cycleIndex:         0,
+			expectedCycleIndex: 0,
+		},
+		{
+			name:               "multi node cycle to middle",
+			initialValues:      []int{10, 20, 30, 40},
+			cycleIndex:         2,
+			expectedCycleIndex: 2,
+		},
+		{
+			name:               "multi node cycle to tail (self loop)",
+			initialValues:      []int{10, 20, 30, 40},
+			cycleIndex:         3,
+			expectedCycleIndex: 3,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{}
+			for _, val := range tt.initialValues {
+				l.Append(val)
+			}
+
+			var expectedNode *Node
+
+			if tt.cycleIndex >= 0 && l.Head != nil {
+				tail := l.Head
+				for i := 0; tail.Next != nil; i++ {
+					if i == tt.cycleIndex {
+						expectedNode = tail
+					}
+					tail = tail.Next
+				}
+
+				if tt.cycleIndex == l.Length-1 {
+					expectedNode = tail
+				}
+
+				if expectedNode != nil {
+					tail.Next = expectedNode
+				}
+			}
+
+			result := l.FindCycleStart()
+
+			if tt.expectedCycleIndex == -1 {
+				if result != nil {
+					t.Errorf("FindCycleStart() = %v; want nil", result)
+				}
+			} else {
+				if result == nil {
+					t.Fatalf("FindCycleStart() = nil; want node at index %d", tt.expectedCycleIndex)
+				}
+				if result != expectedNode {
+					t.Errorf("FindCycleStart() returned wrong node. Got value %d; want %d", result.Value, expectedNode.Value)
+				}
+			}
+		})
+	}
+}
