@@ -229,3 +229,17 @@ func (l *LinkedList) Reverse() {
 
 	l.Head = previous
 }
+
+func (l *LinkedList) Middle() int {
+	if l.Head == nil {
+		return -1
+	}
+
+	slow := l.Head
+	fast := l.Head
+	for fast != nil && fast.Next != nil {
+		slow = slow.Next
+		fast = fast.Next.Next
+	}
+	return slow.Value
+}

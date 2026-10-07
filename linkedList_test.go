@@ -876,3 +876,47 @@ func TestLinkedList_Reverse(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_Middle(t *testing.T) {
+	tests := []struct {
+		name          string
+		initialValues []int
+		expectedValue int
+	}{
+		{
+			name:          "middle of odd length list",
+			initialValues: []int{10, 20, 30},
+			expectedValue: 20,
+		},
+		{
+			name:          "middle of even length list",
+			initialValues: []int{10, 20, 30, 40},
+			expectedValue: 30,
+		},
+		{
+			name:          "middle of single element list",
+			initialValues: []int{10},
+			expectedValue: 10,
+		},
+		{
+			name:          "middle of empty list",
+			initialValues: []int{},
+			expectedValue: -1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{}
+			for _, val := range tt.initialValues {
+				l.Append(val)
+			}
+
+			result := l.Middle()
+
+			if result != tt.expectedValue {
+				t.Errorf("Middle() = %d; want %d", result, tt.expectedValue)
+			}
+		})
+	}
+}
