@@ -482,3 +482,64 @@ func TestLinkedList_RemoveAt(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_Contains(t *testing.T) {
+	tests := []struct {
+		name           string
+		initialValues  []int
+		searchValue    int
+		expectedResult bool
+	}{
+		{
+			name:           "contains first element",
+			initialValues:  []int{10, 20, 30},
+			searchValue:    10,
+			expectedResult: true,
+		},
+		{
+			name:           "contains middle element",
+			initialValues:  []int{10, 20, 30},
+			searchValue:    20,
+			expectedResult: true,
+		},
+		{
+			name:           "contains last element",
+			initialValues:  []int{10, 20, 30},
+			searchValue:    30,
+			expectedResult: true,
+		},
+		{
+			name:           "does not contain element",
+			initialValues:  []int{10, 20, 30},
+			searchValue:    99,
+			expectedResult: false,
+		},
+		{
+			name:           "contains in empty list",
+			initialValues:  []int{},
+			searchValue:    10,
+			expectedResult: false,
+		},
+		{
+			name:           "contains duplicate element",
+			initialValues:  []int{10, 20, 20, 30},
+			searchValue:    20,
+			expectedResult: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{}
+			for _, val := range tt.initialValues {
+				l.Append(val)
+			}
+
+			result := l.Contains(tt.searchValue)
+
+			if result != tt.expectedResult {
+				t.Errorf("Contains(%d) = %v; want %v", tt.searchValue, result, tt.expectedResult)
+			}
+		})
+	}
+}

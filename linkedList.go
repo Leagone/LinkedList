@@ -145,3 +145,14 @@ func (l *LinkedList) RemoveAt(index int) error {
 	l.Length--
 	return nil
 }
+
+func (l *LinkedList) Contains(value int) bool {
+	current := l.Head
+	for current != nil {
+		if current.Value == value {
+			return true
+		}
+		current = current.Next
+	}
+	return false
+}
