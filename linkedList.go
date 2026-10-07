@@ -243,3 +243,35 @@ func (l *LinkedList) Middle() int {
 	}
 	return slow.Value
 }
+
+func (l *LinkedList) RemoveNthFromEnd(n int) error {
+
+	if n <= 0 {
+		return errors.New("Out of Bounds")
+	}
+
+	start := &Node{
+		Next: l.Head,
+	}
+
+	slow := start
+	fast := start
+
+	for i := 0; i <= n; i++ {
+		if fast == nil {
+			return errors.New("Out of Bounds")
+		}
+		fast = fast.Next
+	}
+
+	for fast != nil {
+		fast = fast.Next
+		slow = slow.Next
+	}
+
+	slow.Next = slow.Next.Next
+	l.Length--
+	l.Head = start.Next
+
+	return nil
+}

@@ -920,3 +920,115 @@ func TestLinkedList_Middle(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_RemoveNthFromEnd(t *testing.T) {
+	tests := []struct {
+		name           string
+		initialValues  []int
+		n              int
+		expectError    bool
+		expectedLength int
+		expectedList   []int
+	}{
+		{
+			name:           "remove 1st from end (last element)",
+			initialValues:  []int{10, 20, 30},
+			n:              1,
+			expectError:    false,
+			expectedLength: 2,
+			expectedList:   []int{10, 20},
+		},
+		{
+			name:           "remove 2nd from end (middle element)",
+			initialValues:  []int{10, 20, 30},
+			n:              2,
+			expectError:    false,
+			expectedLength: 2,
+			expectedList:   []int{10, 30},
+		},
+		{
+			name:           "remove 3rd from end (first element)",
+			initialValues:  []int{10, 20, 30},
+			n:              3,
+			expectError:    false,
+			expectedLength: 2,
+			expectedList:   []int{20, 30},
+		},
+		{
+			name:           "remove from single-node list",
+			initialValues:  []int{10},
+			n:              1,
+			expectError:    false,
+			expectedLength: 0,
+			expectedList:   nil,
+		},
+		{
+			name:           "remove out of bounds (too large)",
+			initialValues:  []int{10, 20},
+			n:              3,
+			expectError:    true,
+			expectedLength: 2,
+			expectedList:   []int{10, 20},
+		},
+		{
+			name:           "remove out of bounds (zero)",
+			initialValues:  []int{10, 20},
+			n:              0,
+			expectError:    true,
+			expectedLength: 2,
+			expectedList:   []int{10, 20},
+		},
+		{
+			name:           "remove out of bounds (negative)",
+			initialValues:  []int{10, 20},
+			n:              -1,
+			expectError:    true,
+			expectedLength: 2,
+			expectedList:   []int{10, 20},
+		},
+		{
+			name:           "remove from empty list",
+			initialValues:  []int{},
+			n:              1,
+			expectError:    true,
+			expectedLength: 0,
+			expectedList:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{}
+			for _, val := range tt.initialValues {
+				l.Append(val)
+			}
+
+			err := l.RemoveNthFromEnd(tt.n)
+
+			if tt.expectError {
+				if err == nil {
+					t.Fatalf("expected an error but got nil")
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			}
+
+			if l.Length != tt.expectedLength {
+				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
+			}
+
+			actualValues := toSlice(l)
+			if len(actualValues) != len(tt.expectedList) {
+				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
+			}
+
+			for i := range actualValues {
+				if actualValues[i] != tt.expectedList[i] {
+					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
+				}
+			}
+		})
+	}
+}
