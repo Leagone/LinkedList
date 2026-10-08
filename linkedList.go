@@ -325,18 +325,19 @@ func (l1 *LinkedList) Zip(l2 *LinkedList) {
 		current.Next = h1
 		current.Next.Next = h2
 
+		current = h2
+
 		h1 = t1
 		h2 = t2
 
-		current = current.Next.Next
 	}
 
-	if h1 == nil {
-		current.Next = h2
-	}
-
-	if h2 == nil {
+	if h1 != nil {
 		current.Next = h1
+	}
+
+	if h2 != nil {
+		current.Next = h2
 	}
 
 	l1.Head = dummy.Next
