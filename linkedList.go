@@ -294,16 +294,29 @@ func (l *LinkedList) HasCycle() bool {
 func (l *LinkedList) FindCycleStart() *Node {
 	slow := l.Head
 	fast := l.Head
+	hasCycle := false
 
 	for fast != nil && fast.Next != nil {
 		slow = slow.Next
 		fast = fast.Next.Next
 		if slow == fast {
-			return slow
+			hasCycle = true
+			break
 		}
 	}
 
-	return nil
+	if !hasCycle {
+		return nil
+	}
+
+	slow = l.Head
+
+	for slow != fast {
+		slow = slow.Next
+		fast = fast.Next
+	}
+
+	return slow
 }
 
 func (l1 *LinkedList) Zip(l2 *LinkedList) {

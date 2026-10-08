@@ -1169,6 +1169,18 @@ func TestLinkedList_FindCycleStart(t *testing.T) {
 			cycleIndex:         3,
 			expectedCycleIndex: 3,
 		},
+		{
+			name:               "meeting point differs from start (larger list)",
+			initialValues:      []int{10, 20, 30, 40, 50, 60, 70, 80},
+			cycleIndex:         2,
+			expectedCycleIndex: 2,
+		},
+		{
+			name:               "long tail, small cycle",
+			initialValues:      []int{1, 2, 3, 4, 5, 6, 7},
+			cycleIndex:         5,
+			expectedCycleIndex: 5,
+		},
 	}
 
 	for _, tt := range tests {
