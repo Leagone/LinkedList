@@ -35,12 +35,9 @@ func (l *LinkedList) Append(value int) {
 	if l.Head == nil {
 		l.Head = newNode
 	} else {
-		current := l.Head
-		for current.Next != nil {
-			current = current.Next
-		}
-		current.Next = newNode
-		newNode.Prev = current
+		l.Tail.Next = newNode
+		newNode.Prev = l.Tail
+		l.Tail = newNode
 	}
 
 	l.Tail = newNode
@@ -72,8 +69,8 @@ func (l *LinkedList) Pop() (int, error) {
 		l.Head = nil
 		l.Tail = nil
 	} else {
-		l.Tail.Prev.Next = nil
-		l.Tail.Prev = nil
+		l.Tail = l.Tail.Prev
+		l.Tail.Next = nil
 	}
 
 	l.Length--
