@@ -4,6 +4,53 @@ import (
 	"testing"
 )
 
+func toReverseSlice(l *LinkedList) []int {
+	var result []int
+	if l.Head == nil {
+		return result
+	}
+
+	current := l.Head
+	for current.Next != nil {
+		current = current.Next
+	}
+
+	for current != nil {
+		result = append(result, current.Value)
+		current = current.Prev
+	}
+	return result
+}
+
+func assertListState(t *testing.T, l *LinkedList, expectedLength int, expectedValues []int) {
+	t.Helper()
+
+	if l.Length != expectedLength {
+		t.Errorf("Length = %d; want %d", l.Length, expectedLength)
+	}
+
+	actualForward := toSlice(l)
+	if len(actualForward) != len(expectedValues) {
+		t.Fatalf("Forward values count = %d; want %d", len(actualForward), len(expectedValues))
+	}
+	for i := range actualForward {
+		if actualForward[i] != expectedValues[i] {
+			t.Errorf("Forward traversal node %d = %d; want %d (Next pointer issue)", i, actualForward[i], expectedValues[i])
+		}
+	}
+
+	actualBackward := toReverseSlice(l)
+	if len(actualBackward) != len(expectedValues) {
+		t.Fatalf("Backward values count = %d; want %d", len(actualBackward), len(expectedValues))
+	}
+	for i := range actualBackward {
+		expectedIdx := len(expectedValues) - 1 - i
+		if actualBackward[i] != expectedValues[expectedIdx] {
+			t.Errorf("Backward traversal node %d = %d; want %d (Prev pointer issue)", i, actualBackward[i], expectedValues[expectedIdx])
+		}
+	}
+}
+
 func TestLinkedList_Append(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -43,20 +90,7 @@ func TestLinkedList_Append(t *testing.T) {
 			for _, val := range tt.valuesToAppend {
 				l.Append(val)
 			}
-			if l.Length != tt.expectedLength {
-				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
-			}
-			actualValues := toSlice(l)
-
-			if len(actualValues) != len(tt.expectedValues) {
-				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedValues))
-			}
-
-			for i := range actualValues {
-				if actualValues[i] != tt.expectedValues[i] {
-					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedValues[i])
-				}
-			}
+			assertListState(t, l, tt.expectedLength, tt.expectedValues)
 		})
 	}
 }
@@ -91,26 +125,10 @@ func TestLinkedList_Prepend(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := &LinkedList{}
-
 			for _, val := range tt.valuesToPrepend {
 				l.Prepend(val)
 			}
-
-			if l.Length != tt.expectedLength {
-				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
-			}
-
-			actualValues := toSlice(l)
-
-			if len(actualValues) != len(tt.expectedValues) {
-				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedValues))
-			}
-
-			for i := range actualValues {
-				if actualValues[i] != tt.expectedValues[i] {
-					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedValues[i])
-				}
-			}
+			assertListState(t, l, tt.expectedLength, tt.expectedValues)
 		})
 	}
 }
@@ -173,20 +191,7 @@ func TestLinkedList_Pop(t *testing.T) {
 				t.Errorf("Returned value = %d; want %d", val, tt.expectedValue)
 			}
 
-			if l.Length != tt.expectedLength {
-				t.Errorf("Length after pop = %d; want %d", l.Length, tt.expectedLength)
-			}
-
-			actualValues := toSlice(l)
-			if len(actualValues) != len(tt.expectedList) {
-				t.Fatalf("Remaining nodes count = %d; want %d", len(actualValues), len(tt.expectedList))
-			}
-
-			for i := range actualValues {
-				if actualValues[i] != tt.expectedList[i] {
-					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
-				}
-			}
+			assertListState(t, l, tt.expectedLength, tt.expectedList)
 		})
 	}
 }
@@ -361,20 +366,7 @@ func TestLinkedList_InsertAt(t *testing.T) {
 				}
 			}
 
-			if l.Length != tt.expectedLength {
-				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
-			}
-
-			actualValues := toSlice(l)
-			if len(actualValues) != len(tt.expectedList) {
-				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
-			}
-
-			for i := range actualValues {
-				if actualValues[i] != tt.expectedList[i] {
-					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
-				}
-			}
+			assertListState(t, l, tt.expectedLength, tt.expectedList)
 		})
 	}
 }
@@ -465,20 +457,7 @@ func TestLinkedList_RemoveAt(t *testing.T) {
 				}
 			}
 
-			if l.Length != tt.expectedLength {
-				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
-			}
-
-			actualValues := toSlice(l)
-			if len(actualValues) != len(tt.expectedList) {
-				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
-			}
-
-			for i := range actualValues {
-				if actualValues[i] != tt.expectedList[i] {
-					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
-				}
-			}
+			assertListState(t, l, tt.expectedLength, tt.expectedList)
 		})
 	}
 }
@@ -708,20 +687,7 @@ func TestLinkedList_RemoveByValue(t *testing.T) {
 				}
 			}
 
-			if l.Length != tt.expectedLength {
-				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
-			}
-
-			actualValues := toSlice(l)
-			if len(actualValues) != len(tt.expectedList) {
-				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
-			}
-
-			for i := range actualValues {
-				if actualValues[i] != tt.expectedList[i] {
-					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
-				}
-			}
+			assertListState(t, l, tt.expectedLength, tt.expectedList)
 		})
 	}
 }
@@ -799,20 +765,7 @@ func TestLinkedList_Filter(t *testing.T) {
 
 			l.Filter(tt.condition)
 
-			if l.Length != tt.expectedLength {
-				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
-			}
-
-			actualValues := toSlice(l)
-			if len(actualValues) != len(tt.expectedList) {
-				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
-			}
-
-			for i := range actualValues {
-				if actualValues[i] != tt.expectedList[i] {
-					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
-				}
-			}
+			assertListState(t, l, tt.expectedLength, tt.expectedList)
 		})
 	}
 }
@@ -859,20 +812,7 @@ func TestLinkedList_Reverse(t *testing.T) {
 
 			l.Reverse()
 
-			if l.Length != tt.expectedLength {
-				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
-			}
-
-			actualValues := toSlice(l)
-			if len(actualValues) != len(tt.expectedList) {
-				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
-			}
-
-			for i := range actualValues {
-				if actualValues[i] != tt.expectedList[i] {
-					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
-				}
-			}
+			assertListState(t, l, tt.expectedLength, tt.expectedList)
 		})
 	}
 }
@@ -1015,20 +955,7 @@ func TestLinkedList_RemoveNthFromEnd(t *testing.T) {
 				}
 			}
 
-			if l.Length != tt.expectedLength {
-				t.Errorf("Length = %d; want %d", l.Length, tt.expectedLength)
-			}
-
-			actualValues := toSlice(l)
-			if len(actualValues) != len(tt.expectedList) {
-				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
-			}
-
-			for i := range actualValues {
-				if actualValues[i] != tt.expectedList[i] {
-					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
-				}
-			}
+			assertListState(t, l, tt.expectedLength, tt.expectedList)
 		})
 	}
 }
@@ -1294,20 +1221,7 @@ func TestLinkedList_Zip(t *testing.T) {
 
 			l1.Zip(l2)
 
-			if l1.Length != tt.expectedLength {
-				t.Errorf("Length = %d; want %d", l1.Length, tt.expectedLength)
-			}
-
-			actualValues := toSlice(l1)
-			if len(actualValues) != len(tt.expectedList) {
-				t.Fatalf("List values count = %d; want %d", len(actualValues), len(tt.expectedList))
-			}
-
-			for i := range actualValues {
-				if actualValues[i] != tt.expectedList[i] {
-					t.Errorf("Value at node %d = %d; want %d", i, actualValues[i], tt.expectedList[i])
-				}
-			}
+			assertListState(t, l1, tt.expectedLength, tt.expectedList)
 		})
 	}
 }

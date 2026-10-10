@@ -7,10 +7,12 @@ import (
 type Node struct {
 	Value int
 	Next  *Node
+	Prev  *Node
 }
 
 type LinkedList struct {
 	Head   *Node
+	Tail   *Node
 	Length int
 }
 
@@ -38,8 +40,10 @@ func (l *LinkedList) Append(value int) {
 			current = current.Next
 		}
 		current.Next = newNode
+		newNode.Prev = current
 	}
 
+	l.Tail = newNode
 	l.Length++
 
 }
@@ -49,6 +53,9 @@ func (l *LinkedList) Prepend(value int) {
 		Value: value,
 	}
 	newNode.Next = l.Head
+	if l.Head != nil {
+		l.Head.Prev = newNode
+	}
 	l.Head = newNode
 	l.Length++
 }
@@ -59,18 +66,14 @@ func (l *LinkedList) Pop() (int, error) {
 		return 0, errors.New("Cannot pop from empty list")
 	}
 
-	var val int
+	val := l.Tail.Value
 
-	if l.Head.Next == nil {
-		val = l.Head.Value
+	if l.Head == l.Tail {
 		l.Head = nil
+		l.Tail = nil
 	} else {
-		current := l.Head
-		for current.Next.Next != nil {
-			current = current.Next
-		}
-		val = current.Next.Value
-		current.Next = nil
+		l.Tail.Prev.Next = nil
+		l.Tail.Prev = nil
 	}
 
 	l.Length--
@@ -96,54 +99,89 @@ func (l *LinkedList) Get(index int) (int, error) {
 }
 
 func (l *LinkedList) InsertAt(index int, value int) error {
-
-	if index < 0 || index > l.Length {
-		return errors.New("Out of Bounds")
+	if index < 0 {
+		return errors.New("index out of bounds")
 	}
 
-	newNode := &Node{
-		Value: value,
-	}
+	newNode := &Node{Value: value}
 
 	if index == 0 {
-		newNode.Next = l.Head
-		l.Head = newNode
+		if l.Head == nil {
+			l.Head = newNode
+			l.Tail = newNode
+		} else {
+			newNode.Next = l.Head
+			l.Head.Prev = newNode
+			l.Head = newNode
+		}
 		l.Length++
 		return nil
 	}
 
 	current := l.Head
-	for i := 0; i < index-1; i++ {
+	for i := 0; i < index; i++ {
+		if current == nil {
+			return errors.New("index out of bounds")
+		}
 		current = current.Next
 	}
 
-	newNode.Next = current.Next
-	current.Next = newNode
+	if current == nil {
+		newNode.Prev = l.Tail
+		l.Tail.Next = newNode
+		l.Tail = newNode
+		l.Length++
+		return nil
+	}
+
+	newNode.Next = current
+	newNode.Prev = current.Prev
+
+	current.Prev.Next = newNode
+	current.Prev = newNode
+
 	l.Length++
 	return nil
-
 }
 
 func (l *LinkedList) RemoveAt(index int) error {
-	if index < 0 || index >= l.Length {
+	if index < 0 || l.Head == nil {
 		return errors.New("Out of Bounds")
 	}
 
 	if index == 0 {
-		l.Head = l.Head.Next
+		if l.Head == l.Tail {
+			l.Head = nil
+			l.Tail = nil
+		} else {
+			l.Head = l.Head.Next
+			l.Head.Prev = nil
+		}
 		l.Length--
 		return nil
 	}
 
 	current := l.Head
 
-	for i := 0; i < index-1; i++ {
+	for i := 0; i < index; i++ {
 		current = current.Next
+		if current == nil {
+			return errors.New("Out of Bounds")
+		}
 	}
 
-	current.Next = current.Next.Next
+	if current.Next == nil {
+		l.Tail = l.Tail.Prev
+		l.Tail.Next = nil
+		l.Length--
+		return nil
+	}
+
+	current.Prev.Next = current.Next
+	current.Next.Prev = current.Prev
 	l.Length--
 	return nil
+
 }
 
 func (l *LinkedList) RemoveByValue(value int) error {
@@ -153,21 +191,41 @@ func (l *LinkedList) RemoveByValue(value int) error {
 	}
 
 	if l.Head.Value == value {
-		l.Head = l.Head.Next
+		if l.Head == l.Tail {
+			l.Head = nil
+			l.Tail = nil
+		} else {
+			l.Head = l.Head.Next
+			l.Head.Prev = nil
+		}
+		l.Length--
+		return nil
+
+	}
+
+	current := l.Head
+	for current != nil {
+		current = current.Next
+		if current == nil {
+			return errors.New("Value not found")
+		}
+		if current.Value == value {
+			break
+		}
+	}
+
+	if current.Next == nil {
+		l.Tail = l.Tail.Prev
+		l.Tail.Next = nil
 		l.Length--
 		return nil
 	}
 
-	current := l.Head
-	for current.Next != nil {
-		if current.Next.Value == value {
-			current.Next = current.Next.Next
-			l.Length--
-			return nil
-		}
-		current = current.Next
-	}
-	return errors.New("Value not Found")
+	current.Prev.Next = current.Next
+	current.Next.Prev = current.Prev
+	l.Length--
+	return nil
+
 }
 
 func (l *LinkedList) Contains(value int) bool {
@@ -201,33 +259,37 @@ func (l *LinkedList) Filter(condition func(value int) bool) {
 	current := l.Head
 
 	for current != nil {
+		next := current.Next
 		if condition(current.Value) {
 			tail.Next = current
-			tail = tail.Next
+			current.Prev = tail
+			tail = current
 			newLenght++
 		}
-		current = current.Next
+		current = next
 	}
 
 	tail.Next = nil
 
 	l.Head = dummy.Next
 	l.Length = newLenght
+
+	if l.Head == nil {
+		l.Tail = nil
+	} else {
+		l.Head.Prev = nil
+		l.Tail = tail
+	}
 }
 
 func (l *LinkedList) Reverse() {
-
-	var previous *Node
 	current := l.Head
-
 	for current != nil {
-		tail := current.Next
-		current.Next = previous
-		previous = current
-		current = tail
+		current.Next, current.Prev = current.Prev, current.Next
+		current = current.Prev
 	}
 
-	l.Head = previous
+	l.Head, l.Tail = l.Tail, l.Head
 }
 
 func (l *LinkedList) Middle() int {
@@ -246,33 +308,36 @@ func (l *LinkedList) Middle() int {
 
 func (l *LinkedList) RemoveNthFromEnd(n int) error {
 
-	if n <= 0 {
+	if n <= 0 || l.Head == nil || n > l.Length {
 		return errors.New("Out of Bounds")
 	}
 
-	start := &Node{
-		Next: l.Head,
+	current := l.Tail
+	for i := 1; i < n; i++ {
+		current = current.Prev
 	}
 
-	slow := start
-	fast := start
-
-	for i := 0; i <= n; i++ {
-		if fast == nil {
-			return errors.New("Out of Bounds")
+	switch current {
+	case l.Head:
+		l.Head = l.Head.Next
+		if l.Head != nil {
+			l.Head.Prev = nil
+		} else {
+			l.Tail = nil
 		}
-		fast = fast.Next
+	case l.Tail:
+		l.Tail = l.Tail.Prev
+		if l.Tail != nil {
+			l.Tail.Next = nil
+		} else {
+			l.Head = nil
+		}
+	default:
+		current.Next.Prev = current.Prev
+		current.Prev.Next = current.Next
 	}
 
-	for fast != nil {
-		fast = fast.Next
-		slow = slow.Next
-	}
-
-	slow.Next = slow.Next.Next
 	l.Length--
-	l.Head = start.Next
-
 	return nil
 }
 
@@ -320,9 +385,16 @@ func (l *LinkedList) FindCycleStart() *Node {
 }
 
 func (l1 *LinkedList) Zip(l2 *LinkedList) {
+	if l2.Head == nil {
+		return
+	}
+	if l1.Head == nil {
+		l1.Head, l1.Tail, l1.Length = l2.Head, l2.Tail, l2.Length
+		l2.Head, l2.Tail, l2.Length = nil, nil, 0
+		return
+	}
 
 	dummy := &Node{}
-
 	current := dummy
 
 	h1 := l1.Head
@@ -332,28 +404,38 @@ func (l1 *LinkedList) Zip(l2 *LinkedList) {
 		t1 := h1.Next
 		t2 := h2.Next
 
-		h1.Next = nil
-		h2.Next = nil
-
 		current.Next = h1
-		current.Next.Next = h2
+		h1.Prev = current
+
+		h1.Next = h2
+		h2.Prev = h1
 
 		current = h2
 
 		h1 = t1
 		h2 = t2
-
 	}
 
 	if h1 != nil {
 		current.Next = h1
-	}
-
-	if h2 != nil {
+		h1.Prev = current
+		l2.Tail = l1.Tail
+	} else if h2 != nil {
 		current.Next = h2
+		h2.Prev = current
+		l1.Tail = l2.Tail
+	} else {
+		l1.Tail = current
 	}
 
 	l1.Head = dummy.Next
-	l1.Length = l1.Length + l2.Length
+	if l1.Head != nil {
+		l1.Head.Prev = nil
+	}
 
+	l1.Length += l2.Length
+
+	l2.Head = nil
+	l2.Tail = nil
+	l2.Length = 0
 }
